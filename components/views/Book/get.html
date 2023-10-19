@@ -1,0 +1,30 @@
+<!--
+This file is managed by the tracepaper modeler, if you want to customize this view
+please make sure you rename the file.
+-->
+<template x-component="book-get">
+    <div>
+        <draftsman-query :alias="$prop('alias')" authenticated>
+     query GetBook($key: ID = "") {
+       Book {
+         get(key: $key) {
+           key
+           title
+           repository
+           iam {
+             username
+           } 
+         }
+       }
+     }
+        </draftsman-query>
+        <div x-init="$store.forms[$prop('alias')] = $el.innerHTML" style="display:none;">
+[
+  {
+    "name": "key",
+    "type": "String"
+  }
+]
+        </div>
+    </div>
+</template>

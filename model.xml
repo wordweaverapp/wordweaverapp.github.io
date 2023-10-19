@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<draftsman project-name="WordWeaver" xmlns="https://tracepaper.draftsman.io">
+	<global>
+	</global>
+	<events>
+		<event graphql-namespace="Book" graphql-name="initialize" name="InitializeBookRequested" authorization="authenticated" type="ActorEvent">
+			<field name="title" type="String"></field>
+			<field name="repository" type="String"></field>
+			<field name="owner" type="String" auto-fill="username"></field>
+		</event>
+		<event name="BookInitialized" source="Core.Book" type="DomainEvent">
+			<field name="title" type="String"></field>
+			<field name="repository" type="String"></field>
+			<nested-object name="iam">
+				<field name="username" type="String"></field>
+			</nested-object>
+		</event>
+	</events>
+	<domain>
+		<subdomain name="Core">
+			<aggregate name="Book" business-key="repository" event-ttl="-1" snapshot-interval="100" backup-interval-days="0" backup-ttl-days="0">
+				<field name="title" type="String"></field>
+				<field name="repository" type="String"></field>
+				<command name="Initialize">
+					<trigger source="InitializeBookRequested" key-field="repository">
+						<mapping target="title" value="title"></mapping>
+						<mapping target="repository" value="repository"></mapping>
+						<mapping target="owner" value="owner"></mapping>
+					</trigger>
+					<processor type="code" id="31RuJc" file="" handler="" code='flow.iam = [{|LB|    "username": flow.owner|LB|}]'></processor>
+					<processor type="emit-event" id="mgBFpn" ref="BookInitialized">
+						<mapping target="title" value="#flow.title"></mapping>
+						<mapping target="repository" value="#flow.repository"></mapping>
+						<mapping target="iam" value="#flow.iam"></mapping>
+					</processor>
+					<test-case name="HappyFlow" trigger-event="InitializeBookRequested">
+						<input name="title" value="Test" type="String"></input>
+						<input name="repository" value="https://github.com/test/test" type="String"></input>
+						<input name="owner" value="j.doe" type="String"></input>
+						<expected domain-event="BookInitialized">
+							<field value="Test" name="title" type="String"></field>
+							<field value="https://github.com/test/test" name="repository" type="String"></field>
+						</expected>
+						<expected-state pk="https://github.com/test/test">{
+  "title": "Test",
+  "repository": "https://github.com/test/test",
+  "iam": {
+    "j.doe": {
+      "username": "j.doe"
+    }
+  }
+}</expected-state>
+					</test-case>
+				</command>
+				<event-handler on="BookInitialized">
+					<mapping target="title" operand="set" value="title"></mapping>
+					<mapping target="repository" operand="set" value="repository"></mapping>
+					<nested-mapping source="iam" target="iam" business-key="username">
+						<mapping target="username" operand="set" value="username"></mapping>
+					</nested-mapping>
+				</event-handler>
+				<nested-object name="iam" business-key="newField">
+					<field name="username" type="String"></field>
+				</nested-object>
+			</aggregate>
+		</subdomain>
+	</domain>
+	<views>
+		<view name="Iam" data-retention-days="-1" exclude-notification="false">
+			<field name="username" type="String"></field>
+		</view>
+		<view name="Token" data-retention-days="-1" exclude-notification="false">
+			<field name="title" type="String"></field>
+			<field name="url" type="String"></field>
+			<field name="token" type="String"></field>
+		</view>
+		<view name="Book" data-retention-days="-1" exclude-notification="false">
+			<field name="title" type="String"></field>
+			<field name="repository" type="String" pk="true"></field>
+			<field name="iam" type="ObjectList" ref="Iam" authorization="authenticated" foreign-key="title"></field>
+			<snapshot-handler id="IYpzod" sub-domain="Core" aggregate="Book" key-mapping="repository" processor="item">
+				<mapping target="title" operand="set" value="title"></mapping>
+				<mapping target="repository" operand="set" value="repository"></mapping>
+				<mapping target="iam" operand="convert_items" value="iam" template='{"username": value["username"]}'></mapping>
+				<delete condition="#snapshot.isDeleted != ''"></delete>
+			</snapshot-handler>
+			<query graphql-namespace="Book" field-name="get" type="get" authorization="authenticated"></query>
+			<query graphql-namespace="Book" field-name="filter" type="filter" authorization="authenticated"></query>
+		</view>
+	</views>
+	<projections>
+		<projection graphql-namespace="RepositoryToken" field-name="get" authorization="authenticated" return="Token" name="GetRepositoryToken" code="|LB|from draftsman.ViewStoreApi import Query|LB|import hashlib, time, json, base64|LB||LB||LB|salt = &quot;075fdc59-d5e1-4edc-ba76-b3d0f266ec51&quot;|LB||LB||LB|def transform(arguments, username):|LB|    # You have access to the username of the requestor and the arguments.|LB|    print(f&quot;Handle graph request [{arguments}/{username}]&quot;)|LB||LB|    repository = arguments[&quot;repository&quot;]|LB|    book = Query('Book').get_item(repository).run()|LB|    if not check_if_user_has_access(book,username):|LB|        return {|LB|            &quot;title&quot;:book[&quot;title&quot;],|LB|            &quot;url&quot;:repository,|LB|            &quot;token&quot;:&quot;no-access&quot;|LB|        }|LB|    else:|LB|        token = {|LB|            &quot;scope&quot;: {|LB|                &quot;url&quot;: repository,|LB|                &quot;privelige&quot;: &quot;write&quot;,|LB|                &quot;expiration&quot;: time.time() + 1800|LB|            }|LB|        }|LB|        checksum = token[&quot;scope&quot;][&quot;url&quot;] + token[&quot;scope&quot;][&quot;privelige&quot;] + str(token[&quot;scope&quot;][&quot;expiration&quot;]) + salt|LB|        token[&quot;checksum&quot;] = hashlib.md5(checksum.encode('utf-8')).hexdigest()|LB|        |LB|        token = json.dumps(token)|LB|        token = base64.b64encode(token.encode(&quot;ascii&quot;))|LB|        return {|LB|                &quot;title&quot;:book[&quot;title&quot;],|LB|                &quot;url&quot;:repository,|LB|                &quot;token&quot;:token|LB|            }|LB||LB||LB||LB|def check_if_user_has_access(book,username):|LB|    for iam in book[&quot;iam&quot;]:|LB|        if iam[&quot;username&quot;] == username:|LB|            return True|LB|    else:|LB|        return False">
+			<input name="repository" type="String" required="true"></input>
+		</projection>
+	</projections>
+	<notifiers>
+		<notifier name="InitializeSystemUser">
+			<trigger source="@afterDeployment">
+				<mapping target="dummy" value="#''"></mapping>
+			</trigger>
+			<activity type="iam-create-systemuser" fail-silent="true" id="vMB9LZ"></activity>
+		</notifier>
+	</notifiers>
+	<functional-scenarios clean-db="true" clean-iam="true" minimum-event-coverage="80" minimum-view-coverage="80">
+		<scenario name="CreateBook">
+			<activity type="set-variables" id="QdV7R4">
+				<input name="title" type="String" value="My Book"></input>
+				<input name="repository" type="String" value="https://github.com/test/test"></input>
+			</activity>
+			<activity type="mutation" id="qkG41u" description="Initialize Book" path="Book.initialize">
+				<input name="title" type="String" value="#title#"></input>
+				<input name="repository" type="String" value="#repository#"></input>
+				<expected-trace command="Core.Book.Initialize" status="success"></expected-trace>
+			</activity>
+			<activity type="query" id="wXNmkr" description="Assert that book is initialized" path="Book.get" view="Book">
+				<input name="key" type="String" value="#repository#"></input>
+				<expect-value name="title" type="String" value="#title#"></expect-value>
+				<expect-value name="iam.0.username" type="String" value="#user_name#"></expect-value>
+			</activity>
+		</scenario>
+	</functional-scenarios>
+</draftsman>

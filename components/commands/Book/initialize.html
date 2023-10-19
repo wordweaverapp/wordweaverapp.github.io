@@ -1,0 +1,37 @@
+<!--
+This file is managed by the tracepaper modeler, if you want to customize this command
+please make sure you rename the file first.
+-->
+<template x-component="initialize-book">
+  <div>
+    <draftsman-mutation :command="$prop('command')"  authenticated>
+     mutation Initialize($title: String = "", $repository: String = "") {
+       Book{
+         initialize(input: {title: $title,repository: $repository}) {
+            correlationId
+         }
+       }
+     }
+    </draftsman-mutation>
+    <div x-init="$store.forms[$prop('command')] = $el.innerHTML" style="display:none;">
+[
+  {
+    "name": "title",
+    "title": "Title",
+    "type": "String",
+    "pattern": "",
+    "placeholder": "",
+    "default": ""
+  },
+  {
+    "name": "repository",
+    "title": "Repository",
+    "type": "String",
+    "pattern": "",
+    "placeholder": "",
+    "default": ""
+  }
+]
+    </div>
+  </div>
+</template>

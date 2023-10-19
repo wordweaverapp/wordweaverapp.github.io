@@ -1,0 +1,27 @@
+<!--
+This file is managed by the tracepaper modeler, if you want to customize this view
+please make sure you rename the file.
+-->
+<template x-component="book-filter">
+    <div>
+        <draftsman-query :alias="$prop('alias')" authenticated>
+     query FilterBook {
+       Book {
+         filter {
+            resultset { 
+             key
+             title
+             repository
+             iam {
+               username
+             } 
+           }
+         }
+       }
+     }
+        </draftsman-query>
+        <div x-init="$store.forms[$prop('alias')] = $el.innerHTML" style="display:none;">
+[]
+        </div>
+    </div>
+</template>
