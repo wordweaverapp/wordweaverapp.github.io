@@ -32,11 +32,13 @@ window.Book = {
     add_chapter: function(){
         let name = prompt("Chapter title");
         if (name){
-            let file = `chapter ${session.chapters.length + 1} ${name}.md`;
-            book[file] = {content:`# ${name}\n\n`};
+            let handle = `${session.chapters.length + 1} ${name}`;
+            let file = `chapter ${handle}.md`;
+            book[file] = {content:""};
             session.body = book[file];
             session.mode = "chapter";
             Book.load_chapters();
+            session.chapter = handle;
         }
     },
     open_chapter: function(chapter){

@@ -136,6 +136,11 @@
         </div>
       </div>
     </div>
+    <div class="float-right">
+      <i class="fa-solid fa-arrow-right"
+         @click="Book.open_next"
+         x-show="session.chapters.indexOf(session.chapter) != (session.chapters.length - 1)" x-cloak x-transition></i>
+    </div>
   </div>
 
   <!-- staged files -->
