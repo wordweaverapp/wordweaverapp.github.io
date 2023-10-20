@@ -88,6 +88,7 @@
       <i class="fa-regular fa-eye" @click="edit=false" x-show="edit" x-cloak x-transition></i>
       &nbsp;
       <i class="fa-solid fa-tag" @click="Book.rename()"></i>
+      <i class="fa-solid fa-sort" @click="Book.change_chapter_position()"></i>
       <i class="fa-regular fa-trash-can" @click="Book.remove_chapter()"></i>
       &nbsp;
       <i class="fa-solid fa-arrow-right"

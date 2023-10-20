@@ -12,8 +12,8 @@ var checked_out_repository = "";
 var file_check = {};
 
 function chapterSortFunction(a, b) {
-  a = parseInt(a.split(" ").at(0));
-  b = parseInt(b.split(" ").at(0));
+  a = parseFloat(a.split(" ").at(0));
+  b = parseFloat(b.split(" ").at(0));
   if (a < b) {
     return -1;
   } else if (a > b) {
@@ -130,6 +130,27 @@ window.Book = {
         Book.open_chapter(name);
         Book.load_chapters();
     },
+    change_chapter_position: async function(){
+        let newPosition = prompt("Move chapter to position (1, 2, 3 -- n)");
+        let storedPosition = newPosition;
+        if (!newPosition){return};
+        newPosition = parseInt(newPosition);// - 0.5;
+        if (!newPosition){return};
+        let oldName = `chapter ${session.chapter}.md`;
+        let newName = session.chapter.split(" ");
+        newName.shift();
+        newName = newName.join(" ");
+        let handle = `${storedPosition} ${newName}`;
+        newName = `chapter ${newPosition} ${newName}.md`
+        book[newName] = book[oldName];
+        delete book[oldName];
+        try{
+            await FileSystem.delete(oldName);
+        }catch{}
+        await Book.load_chapters();
+        Book._renumber();
+        Book.open_chapter(handle);
+    },
     _renumber: async function(){
         await session.chapters.forEach(async chapter => {
             let name = chapter.split(" ");
@@ -212,7 +233,7 @@ var save_book_to_disk_block = false;
 async function save_book_to_disk(){
     if (save_book_to_disk_block){return}else{save_book_to_disk_block = true}
     try{
-        await Object.keys(book).forEach(async file => {
+        await Object.keys(book).filter(file => file in book && "content" in book[file]).forEach(async file => {
             await FileSystem.write(file,book[file].content);
         });
         await FileSystem.write("meta.json",JSON.stringify(meta,true,2));
