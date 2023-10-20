@@ -157,6 +157,15 @@ window.Book = {
     }
 }
 
+async function open_book(){
+    await Book.load_chapters();
+    if (session.chapters.includes(localStorage.chapter)){
+        Book.open_chapter(localStorage.chapter);
+    } else if (!localStorage.chapter){
+        Book.open_chapter(session.chapters.at(0));
+    }
+}
+
 document.addEventListener('draftsman:initialized', async () => {
     let context = Alpine.store("context").get;
     meta.title = context.title;
@@ -174,12 +183,7 @@ document.addEventListener('draftsman:initialized', async () => {
         auto_save = setInterval(save_book_to_disk,1000);
         sync_interval = setInterval(sync_book,5*60*1000);
     }
-    await Book.load_chapters();
-    if (session.chapters.includes(localStorage.chapter)){
-        Book.open_chapter(localStorage.chapter);
-    } else if (!localStorage.chapter){
-        Book.open_chapter(session.chapters.at(0));
-    }
+    open_book();
 });
 
 window.clear_storage = async function(force=false){
@@ -270,6 +274,7 @@ async function connect_repository(){
           value: JSON.parse(localStorage["_x_username"])
         })
     }
+    open_book();
     await pull_book();
 }
 
