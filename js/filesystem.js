@@ -54,11 +54,9 @@ window.Book = {
     open_next: function(){
         let index = session.chapters.indexOf(session.chapter) + 1;
         Book.open_chapter(session.chapters.at(index));
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     },
     get_prepared_text: function(){
-//        return session.body.content.replaceAll('</t>','</t><br>')
-//            .replaceAll("</chat-f>","</chat-f><br>")
-//            .replaceAll("</chat-m>","</chat-m><br>").replaceAll("\n","<br>");
         return session.body.content .replaceAll("\n","<br>");
     },
     register_character: function(){
@@ -158,6 +156,7 @@ window.Book = {
         return handle;
     }
 }
+
 document.addEventListener('draftsman:initialized', async () => {
     let context = Alpine.store("context").get;
     meta.title = context.title;
@@ -492,44 +491,3 @@ async function get_status_matrix(){
         let status = await git.statusMatrix({fs,dir: dir});
         return status.filter(x => !(x[1] == 1 && x[3] == 1));
     }
-    
-window.sleep = function(ms) {
-    console.trace(`Sleep ${ms} milliseconds`);
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-window.deduplicate = function(elements){
-    let array = [];
-    let check = [];
-    elements.forEach(x =>{
-        let hash = btoa(JSON.stringify(x,true));
-        if (!(check.includes(hash))){
-            array.push(x);
-            check.push(hash);
-        }
-    });
-    return array;
-}
-
-window.make_sure_is_list = function(elements,deduplicate=true){
-    if (Array.isArray(elements)){
-        let array = [];
-        let check = [];
-        if (deduplicate){
-            elements.forEach(x =>{
-                let hash = btoa(JSON.stringify(x,true));
-                if (!(check.includes(hash))){
-                    array.push(x);
-                    check.push(hash);
-                }
-            });
-        } else {
-            array = elements;
-        }
-        return array;
-    } else if (elements){
-        return [elements];
-    } else {
-        return [];
-    }
-}
