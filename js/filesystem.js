@@ -251,6 +251,7 @@ async function load_book(){
         }
     });
     await sleep(500);
+    Book.load_chapters();
 }
 
 function clear_book(){
