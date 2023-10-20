@@ -43,6 +43,7 @@ window.Book = {
     },
     open_chapter: function(chapter){
         session.body = book[`chapter ${chapter}.md`];
+        session.prepared_text = session.body.content.replaceAll("\n","<br>");
         session.mode = "chapter";
         localStorage.chapter = chapter;
         session.chapter = chapter;
@@ -55,9 +56,6 @@ window.Book = {
         let index = session.chapters.indexOf(session.chapter) + 1;
         Book.open_chapter(session.chapters.at(index));
         window.scrollTo({ top: 0, behavior: 'smooth' });
-    },
-    get_prepared_text: function(){
-        return session.body.content .replaceAll("\n","<br>");
     },
     register_character: function(){
         meta.characters = make_sure_is_list(meta.characters);
@@ -274,7 +272,6 @@ async function connect_repository(){
           value: JSON.parse(localStorage["_x_username"])
         })
     }
-    open_book();
     await pull_book();
 }
 

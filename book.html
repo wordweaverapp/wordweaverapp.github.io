@@ -13,14 +13,22 @@
   <link rel="stylesheet" href="/css/customs.css">
 
   <script src="/js/configuration.js"></script>
-  <script src="/js/draftsman.js"></script>
   <script>var must_be_signed_in = true;</script>
+  <link rel="stylesheet" href="/css/draftsman.css" />
+  <script src="/js/framework.js"></script>
+  <script src="/js/cache.js"></script>
+  <script src="https://unpkg.com/@vimesh/ui"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@alpinejs/persist@3.x.x/dist/cdn.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
+  <script src="https://unpkg.com/alpinejs" defer></script>
+
   <script src="https://unpkg.com/@isomorphic-git/lightning-fs"></script>
   <script src="https://unpkg.com/isomorphic-git"></script>
   <script src="/js/filesystem.js" type="module"></script>
   <script src="/js/setup.js"></script>
 
   <script src=" https://unpkg.com/showdown/dist/showdown.min.js"></script>
+  <script src="/js/initialization.js"></script>
 </head>
 <body x-data="session">
 
@@ -86,7 +94,7 @@
          @click="Book.open_next"
          x-show="session.chapters.indexOf(session.chapter) != (session.chapters.length - 1)" x-cloak x-transition></i>
     </div>
-    <div style="max-width:800px"x-show="!edit" x-cloak x-transition x-html="Book.get_prepared_text()"></div>
+    <div style="max-width:800px"x-show="!edit" x-cloak x-transition x-html="session.prepared_text"></div>
     <div x-show="edit" x-cloak x-transition>
       <textarea id="paper" class="edit-area" x-model="session.body.content"></textarea>
       <!-- Button trigger modal -->
