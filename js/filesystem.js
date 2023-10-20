@@ -113,6 +113,7 @@ window.Book = {
     },
     remove_chapter: async function(){
         let chapter = session.chapter;
+        if (!confirm("Remove chapter " + chapter + "?")){return}
         let index = session.chapters.indexOf(chapter);
         if (index == 0){
             Book.open_next();
