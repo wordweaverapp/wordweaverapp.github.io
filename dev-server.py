@@ -1,8 +1,8 @@
 import os, time, glob, shutil, subprocess, traceback
 global server
 server = None
-reload_interval_in_seconds = 3
-environment = "staging"
+reload_interval_in_seconds = 1
+environment = "production"
 def start_server():
     global server
     server = subprocess.Popen(["py","-m", "http.server", "8181", "--directory", "./tmp/"])

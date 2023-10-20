@@ -1,0 +1,9 @@
+query GetBook($repository: String = "") {
+  RepositoryToken {
+    get(repository: $repository) {
+      title
+      token
+      url
+    }
+  }
+}

@@ -1,0 +1,180 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+  <title>Word Weaver</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700,800,900" rel="stylesheet">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/customs.css">
+
+  <script>var must_be_signed_in = true;</script>
+  <script src="/js/configuration.js"></script>
+  <script src="/js/draftsman.js"></script>
+  <script src="https://unpkg.com/@isomorphic-git/lightning-fs"></script>
+  <script src="https://unpkg.com/isomorphic-git"></script>
+  <script src="/js/filesystem.js" type="module"></script>
+  <script src="/js/setup.js"></script>
+
+  <script src=" https://unpkg.com/showdown/dist/showdown.min.js"></script>
+</head>
+<body x-data="session">
+
+<div class="wrapper d-flex align-items-stretch">
+  <nav id="sidebar" class="custom-sidebar">
+    <div class="custom-menu">
+      <button type="button" id="sidebarCollapse" class="btn btn-primary">
+        <i :class="session.staged_files.length != 0 ? 'fa-solid fa-triangle-exclamation' : 'fa fa-bars'"></i>
+        <span class="sr-only">Toggle Menu</span>
+      </button>
+    </div>
+    <div class="p-4 pt-5">
+      <a href="/">
+        <h3 class="h6" x-text="meta.title"></h3>
+      </a>
+
+      <ul class="list-unstyled components mb-5">
+        <template x-if="session.staged_files.length != 0">
+          <li>
+            <a href="#" @click="session.mode='staged'">
+              <i class="fa-solid fa-triangle-exclamation"></i> Commit changes
+            </a>
+          </li>
+        </template>
+        <template x-for="chapter in session.chapters" :key="chapter">
+          <li @click.debounce="Book.open_chapter(chapter)">
+            <a href="#" x-text="chapter"></a>
+          </li>
+        </template>
+        <li @click.debounce="Book.add_chapter()">
+          <a href="#">
+            <i class="fa-solid fa-plus"></i> Add chapter
+          </a>
+        </li>
+      </ul>
+
+      <div class="mb-5">
+        <a href="#">
+        <h3 class="h6" @click="Draftsman.sign_out();">Sign out</h3>
+        </a>
+      </div>
+
+    </div>
+  </nav>
+
+  <!-- Page Content  -->
+  <div class="content ml-3 p-4 p-md-5 pt-5"
+       x-data="{edit: $persist(false)}"
+       x-show="session.mode == 'chapter'" x-cloak x-transition>
+    <h1 x-text="session.chapter"></h1>
+    <div class="float-right">
+      <i class="fa-solid fa-arrow-left"
+         @click="Book.open_previous"
+         x-show="session.chapters.indexOf(session.chapter) != 0" x-cloak x-transition></i>
+      &nbsp;
+      <i class="fa-regular fa-pen-to-square" @click="edit=true" x-show="!edit" x-cloak x-transition></i>
+      <i class="fa-regular fa-eye" @click="edit=false" x-show="edit" x-cloak x-transition></i>
+      &nbsp;
+      <i class="fa-solid fa-tag" @click="Book.rename()"></i>
+      <i class="fa-regular fa-trash-can" @click="Book.remove_chapter()"></i>
+      &nbsp;
+      <i class="fa-solid fa-arrow-right"
+         @click="Book.open_next"
+         x-show="session.chapters.indexOf(session.chapter) != (session.chapters.length - 1)" x-cloak x-transition></i>
+    </div>
+    <div style="max-width:800px"x-show="!edit" x-cloak x-transition x-html="Book.get_prepared_text()"></div>
+    <div x-show="edit" x-cloak x-transition>
+      <textarea id="paper" class="edit-area" x-model="session.body.content"></textarea>
+      <!-- Button trigger modal -->
+      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+        Insert chat message
+      </button>
+
+      <!-- Modal -->
+      <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLabel">Insert message</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body" x-data="{character: $persist(''), time: $persist('09:00'), message: $persist('').as('chat')}">
+              <div class="form-group row">
+              <select class="custom-select"
+                      @change="if(character == 'register character'){Book.register_character();character=''}"
+                      x-model="character">
+                <option value="" disabled>Select Character</option>
+                <template x-for="option in make_sure_is_list(meta.characters)" :key="option.screenName">
+                  <option :value="option.screenName"
+                          :selected="option.screenName == character" x-text="option.screenName"></option>
+                </template>
+                <option value="register character">Register character</option>
+              </select>
+              </div>
+
+              <div class="form-group row">
+                <label for="messagetime" class="col-sm-2 col-form-label">Time</label>
+                <div class="col-sm-10">
+                  <input type="time" id="messagetime" min="00:00" max="23:59" x-model="time"/>
+                </div>
+              </div>
+
+              <textarea class="chat-text" x-model="message" rows="3"></textarea>
+
+              <button type="button" class="btn btn-primary" data-dismiss="modal" aria-label="Close"
+                      @click="Book.insert_chat_message(character,time,message);message='';">
+                Insert
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- staged files -->
+  <div class="content ml-3 p-4 p-md-5 pt-5"
+       x-data="{message: $persist('')}"
+       x-show="session.mode == 'staged'" x-cloak x-transition>
+    <h2 class="mb-4">Staged files</h2>
+
+    <table class="table">
+      <template x-for="file in session.staged_files" :key="file">
+        <tr>
+          <td x-text="await FileSystem.file_status(file)"></td>
+          <td x-text="file"></td>
+          <td>
+            <p @click="await FileSystem.remove_from_staging(file)">
+              <i class="fa-solid fa-ban" style="color: #91959c;"></i>
+            </p>
+          </td>
+        </tr>
+      </template>
+    </table>
+
+    <small>Commit message:</small>
+    <textarea x-model="message" class="commit-text"></textarea>
+    <hr>
+    <button data-bs-dismiss="modal" type="button" @click="FileSystem.clean_and_pull"
+            class="btn btn-outline-danger">Revert all</button>
+    <button @click="FileSystem.commit(message);session.mode='chapter'"
+            class="btn btn-success" x-show="message != '' && message != undefined">Commit</button>
+  </div>
+</div>
+
+<script src="/js/jquery.min.js"></script>
+<script src="/js/popper.js"></script>
+<script src="/js/bootstrap.min.js"></script>
+<script src="/js/main.js"></script>
+
+<draftsman-query alias="context" x-include="/prepared-statements/get-book-context.txt" authenticated>
+</draftsman-query>
+
+</body>
+</html>

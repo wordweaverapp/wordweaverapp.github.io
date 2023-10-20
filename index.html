@@ -4,35 +4,70 @@
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
         <meta name="description" content="Generated example" />
-        <title>Getting Started</title>
+        <title>Word Weaver</title>
+        <script>var must_be_signed_in = true;</script>
         <link rel="icon" type="image/x-icon" href="/assets/draftsman-logo.png" />
         <script src="/js/configuration.js"></script>
         <script src="/js/draftsman.js"></script>
 
-        <!--
-            This example uses bootstrap 5 as it's CSS framework
-            But feel free to use your own preference.
-        -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.2.3/css/bootstrap.min.css"
               integrity="sha512-SbiR/eusphKoMVVXysTKG/7VseWii+Y3FdHrt0EpKgpToZeemhqHeZeLWLhJutz/2ut2Vw1uQEj2MbRF+TVBUA=="
               crossorigin="anonymous" referrerpolicy="no-referrer" />
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" defer></script>
 
     </head>
-    <body class="d-flex flex-column h-100" x-data x-import="navbar">
+    <body class="d-flex flex-column h-100" x-data x-import="custom-navbar">
         <main class="flex-shrink-0">
             <ui-navbar></ui-navbar>
             <br>
-            <div class="container">
-                <!-- Render the ReadMe on this page -->
-                <script src=" https://unpkg.com/showdown/dist/showdown.min.js"></script>
-                <script>
-                    var converter = new showdown.Converter();
-                </script>
-                <div x-include="README.md" x-effect="setTimeout(function(){
-                    $refs.target.innerHTML = converter.makeHtml($el.innerHTML);
-                },100);" style="display:none;"></div>
-                <div x-ref="target"></div>
+            <div class="container" x-data="{books: []}" x-import="views/Book/filter">
+                <div class="data-element" @refresh="books = $store.books.filter.resultset"></div>
+                <ul class="list-group">
+                    <li class="list-group-item list-group-item-dark">Books</li>
+                    <template x-for="book in books">
+                        <a :href="'/book?repository=' + book.repository"
+                           x-text="book.title"
+                           x-show="book.iam.filter(x => x.username == JSON.parse(localStorage['_x_username'])).length != 0" x-cloak x-transition
+                           class="list-group-item list-group-item-action"></a>
+                    </template>
+                    <button type="button" class="list-group-item list-group-item-light list-group-item-action" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                        Start new book
+                    </button>
+                </ul>
+
+                <!-- Modal -->
+                <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLabel">New Book</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body" x-import="utils/tables;commands/Book/initialize">
+                                <div id="trace-container"></div>
+                                <ui-trace-table target="#trace-container"></ui-trace-table>
+                                <form x-data="{command: $persist({})}">
+                                    <div class="mb-3">
+                                        <label for="title" class="form-label">Title</label>
+                                        <input type="text" class="form-control" id="title" x-model="command.title"/>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="repository" class="form-label">GitHub Repository</label>
+                                        <input type="text" class="form-control" id="repository" x-model="command.repository" aria-describedby="repositoryHelp"/>
+                                        <div id="repositoryHelp" class="form-text">Make sure you invite the <i>draftsman-io</i> user with <b>write access</b> to this repo.</div>
+                                    </div>
+                                    <button type="button" class="btn btn-primary" @click.debounce="$store.mutation.send('initializeBook',command);">Initialize</button>
+                                </form>
+                                <ui-initialize-book command="initializeBook"></ui-initialize-book>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <ui-book-filter alias="books"></ui-book-filter>
+                <draftsman-notification message="updated" type="Book"
+                                        @notification="Draftsman.force_reload_data();">
+                </draftsman-notification>
             </div>
         </main>
     </body>

@@ -1,0 +1,39 @@
+
+chat-m {
+  background-color: lightblue;
+  border: 1px solid #c8c8c8;
+  border-radius: 5px;
+  width: 80%;
+  text-align: left;
+  padding: 10px;
+  display: inline-block;
+  margin: 2px;
+  margin-left: 15%;
+}
+
+chat-f {
+  background-color: lightpink;
+  border: 1px solid #c8c8c8;
+  border-radius: 5px;
+  width: 80%;
+  text-align: left;
+  padding: 10px;
+  display: inline-block;
+  margin: 2px;
+}
+
+chat-m::first-line {
+    font-style: italic;
+}
+
+chat-f::first-line {
+    font-style: italic;
+}
+
+t {
+  float:right;
+  position: relative;
+  right: 10px;
+  bottom: 8px;
+  color: darkgray;
+}
