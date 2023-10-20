@@ -94,7 +94,7 @@
          @click="Book.open_next"
          x-show="session.chapters.indexOf(session.chapter) != (session.chapters.length - 1)" x-cloak x-transition></i>
     </div>
-    <div style="max-width:800px"x-show="!edit" x-cloak x-transition x-html="session.prepared_text"></div>
+    <div style="max-width:800px"x-show="!edit" x-cloak x-transition x-html="session.body.content.replaceAll('\n','<br>')"></div>
     <div x-show="edit" x-cloak x-transition>
       <textarea id="paper" class="edit-area" x-model="session.body.content"></textarea>
       <!-- Button trigger modal -->

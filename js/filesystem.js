@@ -43,7 +43,6 @@ window.Book = {
     },
     open_chapter: function(chapter){
         session.body = book[`chapter ${chapter}.md`];
-        session.prepared_text = session.body.content.replaceAll("\n","<br>");
         session.mode = "chapter";
         localStorage.chapter = chapter;
         session.chapter = chapter;
