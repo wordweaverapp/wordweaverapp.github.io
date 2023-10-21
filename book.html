@@ -41,9 +41,14 @@
       </button>
     </div>
     <div class="p-4 pt-5">
-      <a href="/">
+        <small @click="location.href = '/'">
+          <i class="fa-solid fa-arrow-left"></i>
+        </small>
         <h3 class="h6" x-text="meta.title"></h3>
-      </a>
+        <small>
+          <span x-text="session.word_count"></span> words, estimated reading time <span x-text="session.time"></span>
+        </small>
+
 
       <ul class="list-unstyled components mb-5">
         <template x-if="session.staged_files.length != 0">
@@ -79,6 +84,9 @@
        x-data="{edit: $persist(false)}"
        x-show="session.mode == 'chapter'" x-cloak x-transition>
     <h1 x-text="session.chapter"></h1>
+    <small>
+      <span x-text="session.body.words"></span> words, estimated reading time <span x-text="session.body.time"></span>
+    </small>
     <div class="float-right">
       <i class="fa-solid fa-arrow-left"
          @click="Book.open_previous"
@@ -95,6 +103,7 @@
          @click="Book.open_next"
          x-show="session.chapters.indexOf(session.chapter) != (session.chapters.length - 1)" x-cloak x-transition></i>
     </div>
+    <hr>
     <div style="max-width:800px"x-show="!edit" x-cloak x-transition x-html="session.body.content.replaceAll('\n','<br>')"></div>
     <div x-show="edit" x-cloak x-transition>
       <textarea id="paper" class="edit-area" x-model="session.body.content"></textarea>

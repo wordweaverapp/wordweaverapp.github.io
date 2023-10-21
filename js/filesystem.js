@@ -22,8 +22,6 @@ function chapterSortFunction(a, b) {
   return 0;
 }
 
-window.converter = new showdown.Converter();
-
 window.Book = {
     load_chapters: function(){
         let keys = Object.keys(book);
@@ -184,6 +182,36 @@ async function open_book(){
     }
 }
 
+function convert_minutes_to_string(calculated_minutes){
+    let text = "";
+    let hours = Math.floor(calculated_minutes / 60);
+    let minutes = Math.floor(calculated_minutes % 60);
+    if (hours != 0){
+        text += `${hours} hours`
+    }
+    if (hours != 0 && minutes != 0){
+        text += " and ";
+    }
+    if (minutes != 0){
+        text += `${minutes} minutes`
+    }
+    return text;
+}
+
+function analyse(){
+    //https://dev.to/michaelburrows/calculate-the-estimated-reading-time-of-an-article-using-javascript-2k9l
+    let word_count = 0;
+    const wpm = 265;
+    Object.keys(book).forEach(name => {
+        let chapter = book[name];
+        chapter.words = chapter.content.trim().split(/\s+/).length;
+        chapter.time = convert_minutes_to_string(Math.ceil(chapter.words / wpm));
+        word_count += chapter.words;
+    });
+    session.word_count = word_count;
+    session.time = convert_minutes_to_string(Math.ceil(word_count / wpm));
+}
+
 document.addEventListener('draftsman:initialized', async () => {
     let context = Alpine.store("context").get;
     meta.title = context.title;
@@ -202,6 +230,7 @@ document.addEventListener('draftsman:initialized', async () => {
         sync_interval = setInterval(sync_book,5*60*1000);
     }
     open_book();
+    setInterval(analyse,1000);
 });
 
 window.clear_storage = async function(force=false){
