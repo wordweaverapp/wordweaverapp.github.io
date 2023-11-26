@@ -388,6 +388,7 @@ window.FileSystem = {
         }
     },
     commit: async function(message){
+        session.hide = true;
         clearInterval(auto_save);
         let username = JSON.parse(localStorage["_x_username"]);
         let sha = await git.commit({
@@ -410,6 +411,7 @@ window.FileSystem = {
         })
         await FileSystem.pull();
         await reload_book();
+        location.reload();
     },
     get_history: async function(){
         return await git.log({fs,dir:dir});

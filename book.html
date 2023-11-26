@@ -32,6 +32,18 @@
 </head>
 <body x-data="session">
 
+<template x-if="session.hide">
+  <div class="splash-screen" x-ref="splash">
+    <img src="/assets/logo.png" class="splash-logo"/>
+    <div class="loadingContainer">
+      <div class="ball1"></div>
+      <div class="ball2"></div>
+      <div class="ball3"></div>
+      <div class="ball4"></div>
+    </div>
+  </div>
+</template>
+
 <div class="wrapper d-flex align-items-stretch">
   <nav id="sidebar" class="custom-sidebar">
     <div class="custom-menu">

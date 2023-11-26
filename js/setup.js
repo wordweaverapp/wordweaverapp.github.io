@@ -1,5 +1,5 @@
 var book = {};
-var session = {"mode":"chapter"};
+var session = {"mode":"chapter","hide":false};
 var meta = {};
 
 document.addEventListener('alpine:init', async () => {
