@@ -66,14 +66,6 @@
 		</subdomain>
 	</domain>
 	<views>
-		<view name="Iam" data-retention-days="-1" exclude-notification="false">
-			<field name="username" type="String"></field>
-		</view>
-		<view name="Token" data-retention-days="-1" exclude-notification="false">
-			<field name="title" type="String"></field>
-			<field name="url" type="String"></field>
-			<field name="token" type="String"></field>
-		</view>
 		<view name="Book" data-retention-days="-1" exclude-notification="false">
 			<field name="title" type="String"></field>
 			<field name="repository" type="String" pk="true"></field>
@@ -87,9 +79,17 @@
 			<query graphql-namespace="Book" field-name="get" type="get" authorization="authenticated"></query>
 			<query graphql-namespace="Book" field-name="filter" type="filter" authorization="authenticated"></query>
 		</view>
+		<view name="Token" data-retention-days="-1" exclude-notification="false">
+			<field name="title" type="String"></field>
+			<field name="url" type="String"></field>
+			<field name="token" type="String"></field>
+		</view>
+		<view name="Iam" data-retention-days="-1" exclude-notification="false">
+			<field name="username" type="String"></field>
+		</view>
 	</views>
 	<projections>
-		<projection graphql-namespace="RepositoryToken" field-name="get" authorization="authenticated" return="Token" name="GetRepositoryToken" code="|LB|from draftsman.ViewStoreApi import Query|LB|import hashlib, time, json, base64|LB||LB||LB|salt = &quot;075fdc59-d5e1-4edc-ba76-b3d0f266ec51&quot;|LB||LB||LB|def transform(arguments, username):|LB|    # You have access to the username of the requestor and the arguments.|LB|    print(f&quot;Handle graph request [{arguments}/{username}]&quot;)|LB||LB|    repository = arguments[&quot;repository&quot;]|LB|    book = Query('Book').get_item(repository).run()|LB|    if not check_if_user_has_access(book,username):|LB|        return {|LB|            &quot;title&quot;:book[&quot;title&quot;],|LB|            &quot;url&quot;:repository,|LB|            &quot;token&quot;:&quot;no-access&quot;|LB|        }|LB|    else:|LB|        token = {|LB|            &quot;scope&quot;: {|LB|                &quot;url&quot;: repository,|LB|                &quot;privelige&quot;: &quot;write&quot;,|LB|                &quot;expiration&quot;: time.time() + 1800|LB|            }|LB|        }|LB|        checksum = token[&quot;scope&quot;][&quot;url&quot;] + token[&quot;scope&quot;][&quot;privelige&quot;] + str(token[&quot;scope&quot;][&quot;expiration&quot;]) + salt|LB|        token[&quot;checksum&quot;] = hashlib.md5(checksum.encode('utf-8')).hexdigest()|LB|        |LB|        token = json.dumps(token)|LB|        token = base64.b64encode(token.encode(&quot;ascii&quot;))|LB|        return {|LB|                &quot;title&quot;:book[&quot;title&quot;],|LB|                &quot;url&quot;:repository,|LB|                &quot;token&quot;:token|LB|            }|LB||LB||LB||LB|def check_if_user_has_access(book,username):|LB|    for iam in book[&quot;iam&quot;]:|LB|        if iam[&quot;username&quot;] == username:|LB|            return True|LB|    else:|LB|        return False">
+		<projection graphql-namespace="RepositoryToken" field-name="get" authorization="authenticated" return="Token" name="GetRepositoryToken" code="|LB|from draftsman.ViewStoreApi import Query|LB|import hashlib, time, json, base64|LB||LB||LB|salt = &quot;075fdc59-d5e1-4edc-ba76-b3d0f266ec51&quot;|LB||LB||LB|def transform(arguments, username):|LB|    # You have access to the username of the requestor and the arguments.|LB|    print(f&quot;Handle graph request [{arguments}/{username}]&quot;)|LB||LB|    repository = arguments[&quot;repository&quot;]|LB|    book = Query('Book').get_item(repository).run()|LB|    if not check_if_user_has_access(book,username):|LB|        return {|LB|            &quot;title&quot;:book[&quot;title&quot;],|LB|            &quot;url&quot;:repository,|LB|            &quot;token&quot;:&quot;no-access&quot;|LB|        }|LB|    else:|LB|        token = {|LB|            &quot;scope&quot;: {|LB|                &quot;url&quot;: repository,|LB|                &quot;privelige&quot;: &quot;write&quot;,|LB|                &quot;expiration&quot;: time.time() + 86400 |LB|            }|LB|        }|LB|        checksum = token[&quot;scope&quot;][&quot;url&quot;] + token[&quot;scope&quot;][&quot;privelige&quot;] + str(token[&quot;scope&quot;][&quot;expiration&quot;]) + salt|LB|        token[&quot;checksum&quot;] = hashlib.md5(checksum.encode('utf-8')).hexdigest()|LB|        |LB|        token = json.dumps(token)|LB|        token = base64.b64encode(token.encode(&quot;ascii&quot;))|LB|        return {|LB|                &quot;title&quot;:book[&quot;title&quot;],|LB|                &quot;url&quot;:repository,|LB|                &quot;token&quot;:token|LB|            }|LB||LB||LB||LB|def check_if_user_has_access(book,username):|LB|    for iam in book[&quot;iam&quot;]:|LB|        if iam[&quot;username&quot;] == username:|LB|            return True|LB|    else:|LB|        return False">
 			<input name="repository" type="String" required="true"></input>
 		</projection>
 	</projections>
@@ -106,6 +106,7 @@
 			<activity type="set-variables" id="QdV7R4">
 				<input name="title" type="String" value="My Book"></input>
 				<input name="repository" type="String" value="https://github.com/test/test"></input>
+				<input name="triggerDeploy" type="String" value="dummy"></input>
 			</activity>
 			<activity type="mutation" id="qkG41u" description="Initialize Book" path="Book.initialize">
 				<input name="title" type="String" value="#title#"></input>
