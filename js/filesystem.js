@@ -259,6 +259,11 @@ async function sync_book(){
 
 var save_book_to_disk_block = false;
 
+async function save_chapter(chapter){
+    book[chapter.file] = chapter;
+    await FileSystem.write(chapter.file,chapter.content);
+}
+
 async function save_book_to_disk(){
     if (save_book_to_disk_block){return}else{save_book_to_disk_block = true}
     try{

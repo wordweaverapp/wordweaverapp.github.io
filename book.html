@@ -124,7 +124,7 @@
       <textarea id="paper"
                 class="edit-area"
                 x-model="session.body.content"
-                @keyup.debounce="localStorage['lb: ' + session.body.file] = session.body.content"
+                @keyup.debounce="localStorage['lb: ' + session.body.file] = session.body.content;await save_chapter(session.body)"
                 spellcheck="true"></textarea>
       <!-- Button trigger modal -->
       <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
