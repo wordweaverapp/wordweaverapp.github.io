@@ -263,7 +263,10 @@ async function save_book_to_disk(){
     if (save_book_to_disk_block){return}else{save_book_to_disk_block = true}
     try{
         await Object.keys(book).filter(file => file in book && "content" in book[file]).forEach(async file => {
+            book[file].file = file;
             await FileSystem.write(file,book[file].content);
+            let date = new Date();
+            book[file].last_saved = date.getTime();
         });
         await FileSystem.write("meta.json",JSON.stringify(meta,true,2));
         let status = await get_status_matrix();
@@ -390,6 +393,12 @@ window.FileSystem = {
     commit: async function(message){
         session.hide = true;
         clearInterval(auto_save);
+        try{
+            //Backup
+            await Object.keys(book).filter(file => file in book && "content" in book[file]).forEach(async file => {
+                localStorage["cm: " + file] = book[file].content;
+            });
+        }catch{}
         let username = JSON.parse(localStorage["_x_username"]);
         let sha = await git.commit({
           fs,

@@ -24,6 +24,7 @@
 
   <script src="https://unpkg.com/@isomorphic-git/lightning-fs"></script>
   <script src="https://unpkg.com/isomorphic-git"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js" async></script>
   <script src="/js/filesystem.js" type="module"></script>
   <script src="/js/setup.js"></script>
 
@@ -98,6 +99,7 @@
     <h1 x-text="session.chapter"></h1>
     <small>
       <span x-text="session.body.words"></span> words, estimated reading time <span x-text="session.body.time"></span>
+       [last saved: <span x-text="moment(session.body.last_saved).fromNow()"></span>]
     </small>
     <div class="float-right">
       <i class="fa-solid fa-arrow-left"
@@ -119,7 +121,11 @@
     <hr>
     <div style="max-width:800px"x-show="!edit" x-cloak x-transition x-html="session.body.content.replaceAll('\n','<br>')"></div>
     <div x-show="edit" x-cloak x-transition>
-      <textarea id="paper" class="edit-area" x-model="session.body.content" spellcheck="true"></textarea>
+      <textarea id="paper"
+                class="edit-area"
+                x-model="session.body.content"
+                @keyup.debounce="localStorage['lb: ' + session.body.file] = session.body.content"
+                spellcheck="true"></textarea>
       <!-- Button trigger modal -->
       <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
         Insert chat message
