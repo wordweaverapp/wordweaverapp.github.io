@@ -106,7 +106,6 @@
 			<activity type="set-variables" id="QdV7R4">
 				<input name="title" type="String" value="My Book"></input>
 				<input name="repository" type="String" value="https://github.com/test/test"></input>
-				<input name="triggerDeploy" type="String" value="dummy"></input>
 			</activity>
 			<activity type="mutation" id="qkG41u" description="Initialize Book" path="Book.initialize">
 				<input name="title" type="String" value="#title#"></input>
