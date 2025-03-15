@@ -18,7 +18,7 @@ document.head.appendChild(script);
 // Insert Vimesh UI (must by synchronous)
 // https://github.com/vimeshjs/vimesh-ui
 var script = document.createElement("script");
-script.setAttribute("src","https://unpkg.com/@vimesh/ui");
+script.setAttribute("src","https://cdn.jsdelivr.net/npm/@vimesh/ui");
 script.addEventListener('load', function() {
     // vimesh-ui configuratie
     $vui.config = {
@@ -37,7 +37,7 @@ document.head.appendChild(script);
 
 // Insert the AlpineJS core (defered)
 var script = document.createElement("script");
-script.setAttribute("src","https://unpkg.com/alpinejs");
+script.setAttribute("src","https://cdn.jsdelivr.net/npm/alpinejs");
 script.setAttribute("defer","true");
 document.head.appendChild(script);
 
