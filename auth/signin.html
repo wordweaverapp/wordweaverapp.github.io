@@ -1,40 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
-    <meta name="description" content=""/>
-    <title>Sign in</title>
+  <meta http-equiv="refresh" content="1; URL=/auth" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <meta name="description" content="devConf, een DevOps conferentie in het zuiden" />
+  <title>devConf</title>
 
-    <!-- core -->
-    <link rel="icon" type="image/x-icon" href="/assets/logo.png"/>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" rel="stylesheet"/>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.2.3/css/bootstrap.min.css"
-          integrity="sha512-SbiR/eusphKoMVVXysTKG/7VseWii+Y3FdHrt0EpKgpToZeemhqHeZeLWLhJutz/2ut2Vw1uQEj2MbRF+TVBUA=="
-          crossorigin="anonymous" referrerpolicy="no-referrer"/>
+  <!-- core -->
+  <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" rel="stylesheet" />
+  <link href="/css/styles.css" rel="stylesheet" />
+  <link href="/css/devconf.css" rel="stylesheet" />
+  <script src="/js/tp/alpine.js" defer></script>
+  <script src="/js/configuration.js"></script>
+    <script src="/js/configuration-staging.js"></script>
+    <script src="/js/cache.js"></script>
+  <script src="/js/draftsman.js"></script>
+  <!-- -->
 
-    <script src="/js/configuration.js"></script>
-    <script src="/js/draftsman.js"></script>
-    <!-- -->
-
-    <script src="/js/amazon-cognito-identity.min.js"></script>
-    <script src="/js/authentication.js"></script>
-    <script>
+  <script src="/js/amazon-cognito-identity.min.js"></script>
+  <script src="/js/authentication.js"></script>
+  <script>
   function finalize_signin(err,data){
     if (err){
       console.log(err);
-      alert(err["message"]);
+      document.getElementById("error").innerText = JSON.stringify(err,null,2);
     }
     localStorage["token"] = data["idToken"]["jwtToken"];
-    cacheJS.set("token",localStorage["token"],3600);
+    cacheJS.set("token",localStorage["token"], 60);
     navigate_to_referer();
   }
   function executeSignIn(username,password){
     signInUser(username,password,finalize_signin)
   }
-
-    </script>
-    <style>
+  </script>
+  <style>
     html,
     body {
       height: 100%;
@@ -74,15 +75,14 @@
       border-top-left-radius: 0;
       border-top-right-radius: 0;
     }
-
-    </style>
+  </style>
 </head>
 <body class="d-flex flex-column h-100" x-cloak x-data="{}">
-<main class="form-signin text-center">
-    <form x-data="{username: $persist(''),password:'', enabled: true}">
-        <img class="mb-4" src="/assets/logo.png" alt="" height="57">
+<main class="form-signin">
+    <form x-data="{username:'',password:'', enabled: true}">
+        <img class="mb-4" src="/assets/email-header.png" alt=""  height="57">
         <h1 class="h3 mb-3 fw-normal">Please sign in</h1>
-
+        <pre id="error"></pre>
         <div class="form-floating">
             <input x-model="username" type="text" class="form-control" id="floatingInput" placeholder="username">
             <label for="floatingInput">Username</label>
@@ -93,11 +93,7 @@
             <label for="floatingPassword">Password</label>
         </div>
 
-        <button class="w-100 btn btn-lg btn-primary" type="button"
-                @click="enabled = false;username = username.toLowerCase();executeSignIn(username,password);setTimeout(function(){enabled = true;password=''},3000)"
-                x-cloak x-transition x-bind:disabled="!enabled">Sign in
-        </button>
-
+        <button class="w-100 btn btn-lg btn-primary" type="button" @click="enabled = false;username = username.toLowerCase();executeSignIn(username,password);setTimeout(function(){enabled = true;password=''},3000)" x-cloak x-transition x-bind:disabled="!enabled">Sign in</button>
     </form>
 </main>
 
