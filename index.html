@@ -30,18 +30,20 @@
             <br>
             <div class="container" x-data="{books: []}" x-import="views/Book/filter">
                 <div class="data-element" @refresh="books = $store.books.filter.resultset"></div>
-                <ul class="list-group">
+                <template x-if="books.length != 0">
+                    <ul class="list-group">
                     <li class="list-group-item list-group-item-dark">Books</li>
                     <template x-for="book in books">
                         <a :href="'/book?repository=' + book.repository"
                            x-text="book.title"
-                           x-show="book.iam.filter(x => x.username == JSON.parse(localStorage['_x_username'])).length != 0" x-cloak x-transition
+                           x-show="book.iam.filter(x => x.username == localStorage['username']).length != 0" x-cloak x-transition
                            class="list-group-item list-group-item-action"></a>
                     </template>
                     <button type="button" class="list-group-item list-group-item-light list-group-item-action" data-bs-toggle="modal" data-bs-target="#exampleModal">
                         Start new book
                     </button>
                 </ul>
+                </template>
 
                 <!-- Modal -->
                 <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">

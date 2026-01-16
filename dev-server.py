@@ -5,7 +5,7 @@ reload_interval_in_seconds = 1
 environment = "production"
 def start_server():
     global server
-    server = subprocess.Popen(["py","-m", "http.server", "8181", "--directory", "./tmp/"])
+    server = subprocess.Popen(["python3","-m", "http.server", "8181", "--directory", "./tmp/"])
 
 
 def stop_server():

@@ -1,4 +1,11 @@
 
+import { Buffer } from "https://esm.sh/buffer@6";
+globalThis.Buffer = Buffer;
+
+// soms nodig bij libs die "process" verwachten
+import process from "https://esm.sh/process@0.11";
+globalThis.process = process;
+
 import http from '/js/http.js'
 
 const dir = '/book';
@@ -319,7 +326,7 @@ function clear_book(){
 async function connect_repository(){
     fs = new LightningFS(localStorage.book);
     if (await FileSystem.read("README.md") == "file not found"){
-        console.log("clone");
+        console.log("clone",checked_out_repository);
         await git.clone({ fs, http, dir, url: checked_out_repository, corsProxy: proxy });
 
         console.log("set author");
@@ -327,7 +334,7 @@ async function connect_repository(){
           fs,
           dir: dir,
           path: 'user.name',
-          value: JSON.parse(localStorage["_x_username"])
+          value: localStorage["username"]
         })
     }
     await pull_book();
@@ -404,7 +411,7 @@ window.FileSystem = {
                 localStorage["cm: " + file] = book[file].content;
             });
         }catch{}
-        let username = JSON.parse(localStorage["_x_username"]);
+        let username = localStorage["username"];
         let sha = await git.commit({
           fs,
           dir: dir,
