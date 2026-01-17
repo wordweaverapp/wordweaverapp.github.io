@@ -14,6 +14,7 @@ var auto_save = null;
 var sync_interval = null;
 var fs = null;
 
+var branches = [];
 var branch = "main";
 var checked_out_repository = "";
 var file_check = {};
@@ -326,6 +327,7 @@ function clear_book(){
 async function connect_repository(){
     fs = new LightningFS(localStorage.book);
     if (await FileSystem.read("README.md") == "file not found"){
+
         console.log("clone",checked_out_repository);
         await git.clone({ fs, http, dir, url: checked_out_repository, corsProxy: proxy });
 
@@ -335,18 +337,22 @@ async function connect_repository(){
           dir: dir,
           path: 'user.name',
           value: localStorage["username"]
-        })
+        });
     }
     await pull_book();
 }
 
 async function pull_book(){
+    branches = await git.listBranches({ fs, dir, remote: 'origin' })
+    console.log(branches)
     if (!await FileSystem.staged_files()){
       console.log("checkout: " + branch);
       await FileSystem.checkout_branch(branch);
       prepare_folder_structure();
       const currentDate = new Date();
-      session.last_pulled = currentDate.getTime();
+      setTimeout(function(){
+        session.last_pulled = currentDate.getTime();
+      },700);
     }
 }
 

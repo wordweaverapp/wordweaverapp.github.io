@@ -33,7 +33,7 @@
 </head>
 <body x-data="session">
 
-<template x-if="session.hide">
+<template x-if="session.hide || !session.last_pulled">
   <div class="splash-screen" x-ref="splash">
     <img src="/assets/logo.png" class="splash-logo"/>
     <div class="loadingContainer">
@@ -49,7 +49,7 @@
   <nav id="sidebar" class="custom-sidebar">
     <div class="custom-menu">
       <button type="button" id="sidebarCollapse" class="btn btn-primary">
-        <i :class="session.staged_files.length != 0 ? 'fa-solid fa-triangle-exclamation' : 'fa fa-bars'"></i>
+        <i :class="session.staged_files && session.staged_files.length != 0 ? 'fa-solid fa-triangle-exclamation' : 'fa fa-bars'"></i>
         <span class="sr-only">Toggle Menu</span>
       </button>
     </div>
@@ -64,7 +64,7 @@
 
 
       <ul class="list-unstyled components mb-5">
-        <template x-if="session.staged_files.length != 0">
+        <template x-if="session.staged_files && session.staged_files.length != 0">
           <li>
             <a href="#" @click="session.mode='staged'">
               <i class="fa-solid fa-triangle-exclamation"></i> Commit changes
@@ -93,7 +93,8 @@
   </nav>
 
   <!-- Page Content  -->
-  <div class="content ml-3 p-4 p-md-5 pt-5"
+  <template x-if="session.body">
+    <div class="content ml-3 p-4 p-md-5 pt-5"
        x-data="{edit: $persist(false)}"
        x-show="session.mode == 'chapter'" x-cloak x-transition>
     <h1 x-text="session.chapter"></h1>
@@ -179,6 +180,8 @@
          x-show="session.chapters.indexOf(session.chapter) != (session.chapters.length - 1)" x-cloak x-transition></i>
     </div>
   </div>
+  </template>
+
 
   <!-- staged files -->
   <div class="content ml-3 p-4 p-md-5 pt-5"
