@@ -1,4 +1,3 @@
-
 <!doctype html>
 <html lang="en">
 <head>
@@ -57,6 +56,14 @@
         <small @click="location.href = '/'">
           <i class="fa-solid fa-arrow-left"></i>
         </small>
+        &nbsp;&nbsp;
+        <select class="select" x-model="session.branch"
+                @change="await FileSystem.checkout_branch(session.branch);location.reload()">
+          <template x-for="branch in session.branches" :key="branch">
+            <option :value="branch" x-text="branch" :selected="session.branch == branch"></option>
+          </template>
+        </select>
+
         <h3 class="h6" x-text="meta.title"></h3>
         <small>
           <span x-text="session.word_count"></span> words, estimated reading time <span x-text="session.time"></span>
@@ -120,7 +127,7 @@
     </div>
     <br>
     <hr>
-    <div style="max-width:800px"x-show="!edit" x-cloak x-transition x-html="session.body.content.replaceAll('\n','<br>')"></div>
+    <div style="max-width:800px"x-show="!edit" x-cloak x-transition x-html="session.body.content.replaceAll('\n\n','<br><br>')"></div>
     <div x-show="edit" x-cloak x-transition>
       <textarea id="paper"
                 class="edit-area"

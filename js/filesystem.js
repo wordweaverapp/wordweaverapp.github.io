@@ -14,7 +14,6 @@ var auto_save = null;
 var sync_interval = null;
 var fs = null;
 
-var branches = [];
 var branch = "main";
 var checked_out_repository = "";
 var file_check = {};
@@ -343,8 +342,15 @@ async function connect_repository(){
 }
 
 async function pull_book(){
-    branches = await git.listBranches({ fs, dir, remote: 'origin' })
-    console.log(branches)
+    let branches = await git.listBranches({ fs, dir, remote: 'origin' });
+    session.branches = branches.filter(x => x != 'HEAD');
+
+    if (checked_out_repository + '_branch' in localStorage && session.branches.includes(localStorage[checked_out_repository + '_branch'])){
+        branch = localStorage[checked_out_repository + '_branch'];
+    } else {
+        branch = "main";
+    }
+    session.branch = branch;
     if (!await FileSystem.staged_files()){
       console.log("checkout: " + branch);
       await FileSystem.checkout_branch(branch);
@@ -447,7 +453,9 @@ window.FileSystem = {
         await git.fetch({fs,dir: dir,http: http});
         await git.pull({fs,http,dir: dir});
     },
-    checkout_branch: async function(branch){
+    checkout_branch: async function(b){
+        localStorage[checked_out_repository + '_branch'] = b;
+        branch = b;
         await git.fetch({
           fs,
           dir: dir,
@@ -462,7 +470,7 @@ window.FileSystem = {
           fs,
           http,
           dir: dir
-        })
+        });
     },
     checkout_commit: async function(commit){
         await git.checkout({
